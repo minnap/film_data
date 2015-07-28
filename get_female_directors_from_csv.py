@@ -33,6 +33,12 @@ def gender_lister(people, target_gender='', default_country='', default_language
         result = Genderize().get([firstname], country_id=country, language_id=language)[0]
         #print result
         gender = result['gender']
+        if not gender and (country or language): # if country/language paramaters were used, try again without
+            # while this may reduce accuracy, it will fetch a larger set of potentially gendered names
+            # which is fine for the purposes of our project
+            # print 'retrying ' + person['name'] + ' without language or country'
+            result = Genderize().get([firstname])[0]
+            gender = result['gender']
         if gender: 
         #    print name + " is probably " + gender
             gender_list += [[name, result['probability'], gender]]
