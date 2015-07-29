@@ -2,6 +2,7 @@ from genderize import Genderize
 import pycountry
 import csv
 import codecs
+from shutil import copyfile
 
 def gender_lister(people, target_gender='', default_country='', default_language=''):
     gender_list = []
@@ -105,17 +106,39 @@ def csv_names(filename):
         for row in myReader:
             directors += [row]
     
-    return directors
+    str(len(directors)) + ' directors found. Up to 1000 names can be genderized per day; by deafult this script submits 200.'
+    
+    batch_size = int(raw_input('How many names do you want to genderize now? ') or 200)
+    
+    truncated_person_list = directors[0:batch_size]
+    
+    save_leftovers(directors,batch_size)
+    
+    return truncated_person_list
 
-filename = "directors.csv" # to do: allow user to choose file
+def save_leftovers(directors, range_start):
+    csv_file = 'leftovers.csv'
 
-csv_file = filename.replace(".", "_genderized.") 
-csv_headers = ["name", "probabability", "gender"] # to do: modify headers to reflect target gender or lack thereof
+    with open(csv_file, 'wb') as output:
+        output.write(codecs.BOM_UTF8)
+        writer = csv.writer(output, quoting=csv.QUOTE_ALL,quotechar='"')
+        #writer.writerows(gender_lister(person_dicter(csv_names(filename)), 'female'))
+        writer.writerows(directors[range_start:])
+        
+    print csv_file, 'has been created. It contains ' + str(len(directors)) + ' directors whose names were not processed in this batch.'
+
+#filename = 'directors.csv'
+
+filename = raw_input('Enter a filename for processing: ')
+
+csv_file = original_filename.replace(".csv", "_genderized.csv") 
+csv_headers = ["name", "probabability", "gender"]
 
 with open(csv_file, 'wb') as output:
     output.write(codecs.BOM_UTF8)
     writer = csv.writer(output, quoting=csv.QUOTE_ALL,quotechar='"')
     #writer.writerows(gender_lister(person_dicter(csv_names(filename)), 'female'))
-    writer.writerows(gender_lister(person_dicter(csv_names(filename)))) # to do: incorporate user input for target gender
+    #writer.writerows(gender_lister(person_dicter(csv_names(filename))))
+    writer.writerows(gender_lister(person_dicter(csv_names(filename))))
         
 print csv_file, 'has been created'
