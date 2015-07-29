@@ -1,4 +1,5 @@
 from genderize import Genderize
+import pycountry
 import csv
 import codecs
 
@@ -23,15 +24,28 @@ def gender_lister(people, target_gender='', default_country='', default_language
         else:
             name = person['name']
             firstname = person['name'].split(' ')[0] #assume default type is dict
-            if person['country']:
+            #if person['country']:
+                #country = person['country']
+            if len(person['country']) > 2: # if person data includes a country name (longer than a 2-character ISO code)
+                try:
+                    country = pycountry.languages.get(name=person['country']).alpha2 # get the ISO code
+                    # it's possible to use capitalize() here  
+                except:
+                    pass
+            elif len(person['country']) == 2: # if person data includes a country ISO code
                 country = person['country']
-            if person['language']:
+            if len(person['language']) > 2: # if person data includes a language (longer than a 2-character ISO code)
+                try:
+                    country = pycountry.countries.get(name=person['language']).iso639_1_code # get the ISO code
+                except:
+                    pass
+            elif len(person['language']) == 2: # if person data includes a country ISO code
                 language = person['language']
         # TO DO: figure out why typechecking doesn't seem to work for dicts here
-        #print firstname
         #print firstname + ', ' + country + ', ' + language
-        result = Genderize().get([firstname], country_id=country, language_id=language)[0]
-        #print result
+        #result = Genderize().get([firstname], country_id=country, language_id=language)[0]
+        result = Genderize().get([unicode(firstname, 'latin1')], country_id=country, language_id=language)[0]
+        # print result
         gender = result['gender']
         if not gender and (country or language): # if country/language paramaters were used, try again without
             # while this may reduce accuracy, it will fetch a larger set of potentially gendered names
@@ -64,17 +78,15 @@ def person_dicter(name_list): # name list should consist of a list of lists, whe
     people = []
     for name in name_list:
         person = {'name':name[0]}
+        #person = {unicode(name[0], 'latin1')}
         if name[1]:
-            #print name[1]
             person['country'] = name[1]
         else: 
             person['country'] = ''
         if name[2]:
-            #print name[2]
             person['language'] = name[2]
         else: 
             person['language'] = ''
-            #print person
         people += [person]
     
     return people
@@ -83,6 +95,7 @@ def csv_names(filename):
     directors = []
 
     with open(filename, 'rU') as csvfile:
+    #with codecs.open(filename,'r','latin1') as csvfile:
         #sniff to find the format
         #fileDialect = csv.Sniffer().sniff(csvfile.read(1024))
         csvfile.seek(0)
@@ -91,17 +104,18 @@ def csv_names(filename):
         #read each row
         for row in myReader:
             directors += [row]
-            
+    
     return directors
 
-filename = "directors.csv"
+filename = "directors.csv" # to do: allow user to choose file
 
 csv_file = filename.replace(".", "_genderized.") 
-csv_headers = ["name", "probabability", "gender"]
+csv_headers = ["name", "probabability", "gender"] # to do: modify headers to reflect target gender or lack thereof
 
 with open(csv_file, 'wb') as output:
     output.write(codecs.BOM_UTF8)
     writer = csv.writer(output, quoting=csv.QUOTE_ALL,quotechar='"')
-    writer.writerows(gender_lister(person_dicter(csv_names(filename)), 'female'))
+    #writer.writerows(gender_lister(person_dicter(csv_names(filename)), 'female'))
+    writer.writerows(gender_lister(person_dicter(csv_names(filename)))) # to do: incorporate user input for target gender
         
 print csv_file, 'has been created'
