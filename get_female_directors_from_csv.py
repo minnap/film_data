@@ -131,7 +131,7 @@ def save_leftovers(directors, range_start):
 
 filename = raw_input('Enter a filename for processing: ')
 
-csv_file = original_filename.replace(".csv", "_genderized.csv") 
+csv_file = filename.replace(".csv", "_genderized.csv") 
 csv_headers = ["name", "probabability", "gender"]
 
 with open(csv_file, 'wb') as output:
