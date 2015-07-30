@@ -10,13 +10,16 @@ def gender_lister(people, target_gender='', default_country='', default_language
     male_names = []
     awesome_names = []
     for person in people: # analyzes first name only
+        
+        #print person
+        
         country = ''
         language = ''
         #print person 
         #print type(person)
         if isinstance(person, str):
             name = person
-            firstname = person.split(' ')[0]
+            firstname = person.split(' ')[0] # get first name in multi-part name
             country = default_country
             language = default_language
         elif isinstance(person, list):
@@ -45,7 +48,7 @@ def gender_lister(people, target_gender='', default_country='', default_language
         # TO DO: figure out why typechecking doesn't seem to work for dicts here
         #print firstname + ', ' + country + ', ' + language
         #result = Genderize().get([firstname], country_id=country, language_id=language)[0]
-        result = Genderize().get([unicode(firstname, 'latin1')], country_id=country, language_id=language)[0]
+        result = Genderize().get([unicode(firstname.strip(), 'latin1')], country_id=country, language_id=language)[0]
         # print result
         gender = result['gender']
         if not gender and (country or language): # if country/language paramaters were used, try again without
@@ -78,14 +81,14 @@ def gender_lister(people, target_gender='', default_country='', default_language
 def person_dicter(name_list): # name list should consist of a list of lists, where each list is [name, country, language]
     people = []
     for name in name_list:
-        person = {'name':name[0]}
+        person = {'name':name[0].strip()}
         #person = {unicode(name[0], 'latin1')}
         if name[1]:
-            person['country'] = name[1]
+            person['country'] = name[1].strip()
         else: 
             person['country'] = ''
         if name[2]:
-            person['language'] = name[2]
+            person['language'] = name[2].strip()
         else: 
             person['language'] = ''
         people += [person]
@@ -106,9 +109,9 @@ def csv_names(filename):
         for row in myReader:
             directors += [row]
     
-    str(len(directors)) + ' directors found. Up to 1000 names can be genderized per day; by deafult this script submits 200.'
+    print str(len(directors)) + ' directors found. Up to 1000 names can be genderized per day; by default this script submits 200.'
     
-    batch_size = int(raw_input('How many names do you want to genderize now? ') or 200)
+    batch_size = int(raw_input('How many names do you want to genderize now? ')) or 200
     
     truncated_person_list = directors[0:batch_size]
     
@@ -129,16 +132,25 @@ def save_leftovers(directors, range_start):
 
 #filename = 'directors.csv'
 
-filename = raw_input('Enter a filename for processing: ')
+target_gender = raw_input('The default output will include all names and their genders. Please enter a binary gender ("male", "female") to get a filtered list of names: ') or ''
 
-csv_file = filename.replace(".csv", "_genderized.csv") 
-csv_headers = ["name", "probabability", "gender"]
+filename = raw_input('Enter a filename for processing: ') or 'directors.csv'
+
+csv_file = raw_input('The default output file will be ' + filename.replace(".csv", "_" + target_gender + ".csv") + '; enter a filename to override: ') or filename.replace(".csv", "_" + target_gender + ".csv")
+
+csv_headers = ['name', 'probability']
+
+if target_gender != 'awesome':
+        csv_headers += ['gender']
+
+gender_list = gender_lister(person_dicter(csv_names(filename)), target_gender)
 
 with open(csv_file, 'wb') as output:
     output.write(codecs.BOM_UTF8)
     writer = csv.writer(output, quoting=csv.QUOTE_ALL,quotechar='"')
     #writer.writerows(gender_lister(person_dicter(csv_names(filename)), 'female'))
     #writer.writerows(gender_lister(person_dicter(csv_names(filename))))
-    writer.writerows(gender_lister(person_dicter(csv_names(filename))))
+    writer.writerows([csv_headers])
+    writer.writerows(gender_list)
         
 print csv_file, 'has been created'
