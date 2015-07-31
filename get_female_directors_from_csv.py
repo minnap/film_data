@@ -81,17 +81,24 @@ def gender_lister(people, target_gender='', default_country='', default_language
 def person_dicter(name_list): # name list should consist of a list of lists, where each list is [name, country, language]
     people = []
     for name in name_list:
-        person = {'name':name[0].strip()}
-        #person = {unicode(name[0], 'latin1')}
+        country = ''
+        language = ''
         if name[1]:
-            person['country'] = name[1].strip()
-        else: 
-            person['country'] = ''
+            country = name[1].strip()
         if name[2]:
-            person['language'] = name[2].strip()
-        else: 
-            person['language'] = ''
-        people += [person]
+            language = name[2].strip()
+        if ', ' in name[0] and not ' and ' in name[0]:
+            for subname in name[0].split(', '):
+                person = {'name':subname.strip(), 'language':language, 'country':country}
+                people += [person]
+        elif ' and ' in name[0] and not ', ' in name[0]:
+            for subname in name[0].split('and'):
+                person = {'name':subname.strip(), 'language':language, 'country':country}
+                people += [person]
+        else:   
+            person = {'name':name[0].strip(), 'language':language, 'country':country}
+            #person = {unicode(name[0], 'latin1')}
+            people += [person]
     
     return people
 
@@ -132,6 +139,8 @@ def save_leftovers(directors, range_start):
 
 #filename = 'directors.csv'
 
+# user options:
+
 target_gender = raw_input('The default output will include all names and their genders. Please enter a binary gender ("male", "female") to get a filtered list of names: ') or ''
 
 filename = raw_input('Enter a filename for processing: ') or 'directors.csv'
@@ -143,6 +152,8 @@ csv_headers = ['name', 'probability']
 if target_gender != 'awesome':
         csv_headers += ['gender']
 
+# okay do the thing:
+        
 gender_list = gender_lister(person_dicter(csv_names(filename)), target_gender)
 
 with open(csv_file, 'wb') as output:
@@ -151,6 +162,6 @@ with open(csv_file, 'wb') as output:
     #writer.writerows(gender_lister(person_dicter(csv_names(filename)), 'female'))
     #writer.writerows(gender_lister(person_dicter(csv_names(filename))))
     writer.writerows([csv_headers])
-    writer.writerows(gender_list)
-        
+    writer.writerows(gender_list)    
+
 print csv_file, 'has been created'
