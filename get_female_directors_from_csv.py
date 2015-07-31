@@ -117,9 +117,14 @@ def csv_names(filename):
             directors += [row]
     
     print "At least " + str(len(directors)) + " directors' names are in this file."
-    print 'Up to 1000 names can be genderized per day; by default this script submits 200.'
+    print 'Up to 1000 names can be genderized per day.'
     
-    batch_size = int(raw_input('How many names do you want to genderize now? ')) or 200
+    if str(len(directors)) < 1000:
+        batch_size_default = str(len(directors))
+    else:
+        batch_size_default = 1000
+    
+    batch_size = int(raw_input('How many names do you want to genderize now? ') or batch_size_default) 
     
     truncated_person_list = directors[0:batch_size]
     
@@ -165,4 +170,4 @@ with open(csv_file, 'wb') as output:
     writer.writerows([csv_headers])
     writer.writerows(gender_list)    
 
-print csv_file, 'has been created. It contains ' + str(len(gender_list)) + ' directors whose names were processed in this batch.'
+print csv_file, 'has been created. It contains ' + str(len(gender_list)) + ' ' + target_gender + ' directors whose names were processed in this batch.'
