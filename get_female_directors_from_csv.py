@@ -116,7 +116,8 @@ def csv_names(filename):
         for row in myReader:
             directors += [row]
     
-    print str(len(directors)) + ' directors found. Up to 1000 names can be genderized per day; by default this script submits 200.'
+    print "At least " + str(len(directors)) + " directors' names are in this file."
+    print 'Up to 1000 names can be genderized per day; by default this script submits 200.'
     
     batch_size = int(raw_input('How many names do you want to genderize now? ')) or 200
     
@@ -127,7 +128,7 @@ def csv_names(filename):
     return truncated_person_list
 
 def save_leftovers(directors, range_start):
-    csv_file = 'leftovers.csv'
+    csv_file = filename.replace(".csv", "_leftovers.csv")
 
     with open(csv_file, 'wb') as output:
         output.write(codecs.BOM_UTF8)
@@ -135,7 +136,7 @@ def save_leftovers(directors, range_start):
         #writer.writerows(gender_lister(person_dicter(csv_names(filename)), 'female'))
         writer.writerows(directors[range_start:])
         
-    print csv_file, 'has been created. It contains ' + str(len(directors)) + ' directors whose names were not processed in this batch.'
+    print csv_file, 'has been created. It contains ' + str(len(directors[range_start:])) + ' directors whose names were not processed in this batch.'
 
 #filename = 'directors.csv'
 
@@ -164,4 +165,4 @@ with open(csv_file, 'wb') as output:
     writer.writerows([csv_headers])
     writer.writerows(gender_list)    
 
-print csv_file, 'has been created'
+print csv_file, 'has been created. It contains ' + str(len(gender_list)) + ' directors whose names were processed in this batch.'
