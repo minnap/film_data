@@ -40,5 +40,5 @@ with open(csv_file, 'wb') as output:
         output.write(codecs.BOM_UTF8)
         writer = csv.writer(output, quoting=csv.QUOTE_ALL,quotechar='"')
         #writer.writerows(gender_lister(person_dicter(csv_names(filename)), 'female'))
-        writer.writerows([['item number', 'original title', 'director(s)', 'language', 'country', 'year', 'potential women']])
+        writer.writerows([['item number', 'original title', 'director(s)', 'language', 'country', 'year', 'potentially female name(s)']])
         writer.writerows(filmlist)
