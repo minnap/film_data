@@ -21,24 +21,17 @@ with open(filename, 'rU') as csvfile:
         for row in myReader:
             prints += [row]
 
+initial_columns = max(len(row) for row in prints)
+
 filmlist = []
 for record in prints:
     namelist = []
     for director in record[2].replace(' and ', ', ').split(', '):
-    #    print director.split()
-        #print director
         if director in names:
             record.append(director)
-    #for name in names:
-    #   if name in record[2]:
-    #       namelist += [name]
-    #if len(namelist) > 0 and record not in filmlist:
-    #   record += [(', ').join(namelist)]
-    #   filmlist += [record]
-    #   print record
 
 for record in prints:
-    if len(record) > 6: #assumes a 6-column csv to begin with
+    if len(record) > initial_columns: # assumes that any columns beyond the initial columns from csv of prints are because of potentially female names identified
         filmlist += [record]
         
 csv_file = 'potential_womens_films.csv'
