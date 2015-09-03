@@ -30,7 +30,7 @@ if initial_columns > len(column_headers):
 filmlist = []
 for record in prints:
     namelist = []
-    for director in record[2].replace(' and ', ', ').split(', '):
+    for director in record[2].replace(' and ', ', ').replace(' & ', ', ').split(', '): #is there a better option than stringing together .replace?
         if director in names:
             record.append(director)
 
