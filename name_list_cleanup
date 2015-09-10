@@ -10,7 +10,7 @@ def namelist(filename, splitter):
         if len(item[0].split()) > 1: #exclude single names; address inverted names when producing initial text files
             names += item
         #print '\n'
-    return names
+    return list(set(names))
         
 female_names = namelist('female_names.txt', ',')
 #print female_names
