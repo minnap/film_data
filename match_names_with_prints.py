@@ -1,7 +1,7 @@
 import csv 
 import codecs
 
-filename = 'female_names.txt'
+filename = 'potentially_actually_female_names.txt'
 filetext = open(filename, 'r')
 names = []
 for line in filetext:
