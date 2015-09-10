@@ -46,29 +46,34 @@ def gender_lister(people, target_gender='', default_country='', default_language
             elif len(person['language']) == 2: # if person data includes a country ISO code
                 language = person['language']
         # TO DO: figure out why typechecking doesn't seem to work for dicts here
-        #print firstname + ', ' + country + ', ' + language
-        #result = Genderize().get([firstname], country_id=country, language_id=language)[0]
-        result = Genderize().get([unicode(firstname.strip(), 'latin1')], country_id=country, language_id=language)[0]
-        # print result
-        gender = result['gender']
-        if not gender and (country or language): # if country/language paramaters were used, try again without
-            # while this may reduce accuracy, it will fetch a larger set of potentially gendered names
-            # which is fine for the purposes of our project
-            # print 'retrying ' + person['name'] + ' without language or country'
-            result = Genderize().get([firstname])[0]
+        if '.' in firstname: #weed out initials, which yield false positives
+            abbreviated_names += [person.values()]
+            #print person
+        else:
+            result = Genderize().get([unicode(firstname.strip(), 'latin1')], country_id=country, language_id=language)[0]
+            # print result
             gender = result['gender']
-        #if gender: 
-            if gender and result['probability'] >= 0.7:
-        #    print name + " is probably " + gender
-            gender_list += [[name, result['probability'], gender]]
-            if gender == 'female':
-                female_names += [[name, result['probability']]]
-            if gender == 'male':
-                male_names += [[name, result['probability']]]
-        else: # null gender
-        #    print "Not sure about " + name
-            awesome_names += [name]
-            gender_list += [[name, '', 'awesome']]
+            if not gender and (country or language): # if country/language paramaters were used, try again without
+                # while this may reduce accuracy, it will fetch a larger set of potentially gendered names
+                # which is fine for the purposes of our project
+                # print 'retrying ' + person['name'] + ' without language or country'
+                result = Genderize().get([firstname])[0]
+                gender = result['gender']
+            if gender:
+            #    print name + " is probably " + gender
+                gender_list += [[name, result['probability'], gender]]
+                if gender == 'female':
+                    female_names += [[name, result['probability']]]
+                if gender == 'male':
+                    male_names += [[name, result['probability']]]
+            else: # null gender or low probability
+            #    print "Not sure about " + name
+                awesome_names += [name]
+                gender_list += [[name, '', 'awesome']]
+    
+    #print abbreviated_names
+    
+    save_ambiguous_names('test.csv', abbreviated_names)
     
     if target_gender == 'female':
         return female_names
@@ -143,6 +148,23 @@ def save_leftovers(directors, range_start):
         writer.writerows(directors[range_start:])
         
     print csv_file, 'has been created. It contains ' + str(len(directors[range_start:])) + ' directors whose names were not processed in this batch.'
+
+
+def save_ambiguous_names(filename, names):
+    
+    #write a separate file of abbreviated names
+
+    csv_file = filename.replace(".csv", "_abbreviated_names.csv")
+
+    with open(csv_file, 'wb') as output:
+        output.write(codecs.BOM_UTF8)
+        writer = csv.writer(output, quoting=csv.QUOTE_ALL,quotechar='"')
+        #writer.writerows(gender_lister(person_dicter(csv_names(filename)), 'female'))
+        #writer.writerows(gender_lister(person_dicter(csv_names(filename))))
+        #writer.writerows([csv_headers])
+        writer.writerows(names)
+    
+    print csv_file + ' has been created. It contains ' + str(len(names)) + ' directors whose ambiguous names were not processed in this batch.' 
 
 #filename = 'directors.csv'
 
