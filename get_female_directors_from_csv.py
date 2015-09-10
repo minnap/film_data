@@ -59,7 +59,7 @@ def gender_lister(people, target_gender='', default_country='', default_language
                 # print 'retrying ' + person['name'] + ' without language or country'
                 result = Genderize().get([firstname])[0]
                 gender = result['gender']
-            if gender:
+            if gender and result['probability'] >= 0.7:
             #    print name + " is probably " + gender
                 gender_list += [[name, result['probability'], gender]]
                 if gender == 'female':
