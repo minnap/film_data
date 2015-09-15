@@ -34,4 +34,4 @@ actually_female_names = remove_values_from_list(female_names, remove_names)
 
 print str(len(female_names)-len(actually_female_names)) + ' names removed. \n'
 
-write_file(actually_female_names, 'testfile.txt')
+write_file(actually_female_names, 'potentially_actually_female_names.txt')
