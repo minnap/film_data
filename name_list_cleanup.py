@@ -12,7 +12,7 @@ def namelist(filename, splitter):
         #print '\n'
     return list(set(names))
         
-female_names = namelist('female_names.txt', ',')
+female_names = namelist('potentially_female_names.txt', ',')
 #print female_names
 remove_names = namelist('remove_names.txt', ',') #note that this can include corporate names and other false positives
 #print remove_names
