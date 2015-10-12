@@ -1,0 +1,30 @@
+import rdflib
+import rdflib.plugins.sparql as sparql
+from rdflib.namespace import RDF, FOAF
+from rdflib import URIRef
+from rdflib import Literal
+from rdflib import Graph
+
+graph = Graph()
+
+graph.parse("films_and_prints.rdf")
+graph.parse("film_prints_flagged_as_womens_years_countries.rdf")
+graph.parse("film_prints_not_flagged_as_womens_titles_running_times_country_years_genres_collections_titles.rdf")
+
+construct_result = graph.query(
+    """CONSTRUCT { ?film bf:originDate ?year .}
+       WHERE { SELECT DISTINCT ?film ?year { ?film schema:workExample ?print .
+       ?print bf:originDate ?year .
+       }
+       }""")
+       
+       
+film_data = rdflib.Graph()
+       
+for row in construct_result:
+#            print("%s %s %s\n" % row)
+    film_data.add(row)
+    
+rdf_file = open('film_data.rdf', 'wb')
+rdf_file.write(construct_result.serialize(format='xml'))
+rdf_file.close()
