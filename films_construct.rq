@@ -1,0 +1,27 @@
+PREFIX schema: <http://schema.org/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX bf: <http://bibframe.org/vocab/#>
+PREFIX hfa: <http://hcl.harvard.edu/hfa/>
+
+# CONSTRUCT
+# { ?movie rdfs:label ?title ;
+#  schema:director ?director ;
+#  schema:duration ?duration . }
+
+ SELECT DISTINCT ?movie ?director ?duration # ?country ?date
+# Leave out country and date for now -- the query doesn't work if they are included: it runs but gives a completely blank table as a result
+
+# Make duration, country, and date OPTIONAL
+
+WHERE
+{
+	?movie schema:workExample ?print .
+
+	?print rdfs:label ?title ;
+		schema:director ?director ;
+		schema:duration ?duration .
+#		bf:originPlace ?country ;
+#		bf:originDate ?date .
+}
